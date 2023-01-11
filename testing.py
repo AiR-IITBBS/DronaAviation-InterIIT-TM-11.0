@@ -4,8 +4,6 @@ sz=1024
 myDrone=skt.socket(skt.AF_INET, skt.SOCK_STREAM)
 myDrone.connect(("192.168.4.1" , 23))
 myDrone.setsockopt(skt.SOL_SOCKET, skt.SO_KEEPALIVE, 1)
-print('Connected')
-tm.sleep(5)
 header=bytearray([ord('$') , ord('M') , ord('<')])
 
 #MSP_SET_RAW_RC
@@ -60,15 +58,19 @@ def disarm():
     dat[21] = update_checksum(dat)
     myDrone.send(dat)
 
-    
-
 arm()
 tm.sleep(2)
+
+takeoff()
+print("TookOff")
+clock_start = tm.time()
+while(tm.time()-clock_start < 5):
+    throttle((1100))
+    tm.sleep(0.022)
 land()
-print("Landed")
-tm.sleep(2)
+print('Landed')
+tm.sleep(5)
 disarm()
 print("Disarmed")
-tm.sleep(3)
 myDrone.close()
 print("Disconnected")
