@@ -37,6 +37,30 @@ def throttle(val):
     pack_dat[21]=update_checksum(pack_dat)
     myDrone.send(pack_dat)
 
+def pitch(val):
+    dat= bytearray(get_LSB_MSB(val))
+    pack_dat[7]=dat[0]
+    pack_dat[8]=dat[1]
+    pack_dat[21]=update_checksum(pack_dat)
+    myDrone.send(pack_dat)
+
+
+def roll(val):
+    dat= bytearray(get_LSB_MSB(val))
+    pack_dat[5]=dat[0]
+    pack_dat[6]=dat[1]
+    pack_dat[21]=update_checksum(pack_dat)
+    myDrone.send(pack_dat)
+
+
+def yaw(val):
+    dat= bytearray(get_LSB_MSB(val))
+    pack_dat[11]=dat[0]
+    pack_dat[12]=dat[1]
+    pack_dat[21]=update_checksum(pack_dat)
+    myDrone.send(pack_dat)
+
+
 def takeoff():
     dat = bytearray( [ 2,217,1,0,1 ] )
     packet = header[:]
@@ -44,12 +68,14 @@ def takeoff():
     packet[7]=update_checksum(packet)
     myDrone.send(packet)
 
+
 def land():
     dat = bytearray( [ 2,217,2,0,1 ] )
     packet = header[:]
     packet.extend(dat)
     packet[7]=update_checksum(packet)
     myDrone.send(packet)
+
 
 def disarm():
     dat = pack_dat[:]
