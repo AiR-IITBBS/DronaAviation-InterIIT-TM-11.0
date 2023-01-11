@@ -35,6 +35,7 @@ def throttle(val):
     pack_dat[9]=dat[0]
     pack_dat[10]=dat[1]
     pack_dat[21]=update_checksum(pack_dat)
+    print(pack_dat[21])
     myDrone.send(pack_dat)
 
 def pitch(val):
@@ -90,7 +91,7 @@ tm.sleep(2)
 takeoff()
 print("TookOff")
 clock_start = tm.time()
-while(tm.time()-clock_start < 5):
+while(tm.time()-clock_start < 10):
     throttle((1100))
     tm.sleep(0.022)
 land()
