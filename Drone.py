@@ -1,7 +1,13 @@
 import socket as skt
 import time as tm
 
+Drone_roll=0.0
+Drone_pitch=0.0
+Drone_throttle=0.0
+
 class Drone:
+   
+
     def __init__(self, IP_ADDRESS, PORT, id):
         self.id = id
         self.sz = 1024
@@ -145,6 +151,10 @@ class Drone:
         self.sum_error[2] = self.sum_error[2] + self.error[2]
         # Need to look into anti windup for limiting integral term.
 
+        Drone_roll=self.drone_roll
+        Drone_pitch=self.drone_pitch
+        Drone_throttle=self.drone_throttle
+
 def throttle_test(time):
     drone = Drone("192.168.4.1", 23, 1)
     # drone.disarm() 
@@ -152,9 +162,9 @@ def throttle_test(time):
     drone.takeoff()
     clock_start = tm.time()
     while(tm.time()-clock_start < time):
-        drone.roll((drone_roll)) 
-        drone.pitch((drone_pitch)) 
-        drone.throttle((drone_throttle)) 
+        drone.roll((Drone_roll)) 
+        drone.pitch((Drone_pitch)) 
+        drone.throttle((Drone_throttle)) 
         tm.sleep(0.022)
     drone.land()
     drone.disarm()
