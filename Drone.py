@@ -13,6 +13,28 @@ class Drone:
         self.rc_raw_data = bytearray([36,77,60,16,200,220,5,220,5,220,5,220,5,176,4,232,3,220,5,176,4,234]) #header included
         self.set_cmd_data = bytearray([36,77,60,2,217,1,0,218]) #header included
 
+        #For PID******************************************
+        self.drone_position = [0.0,0.0,0.0]
+        self.setpoint = [0,0,0]
+
+        self.Kp = [0,0,0]
+        self.Ki = [0,0,0]
+        self.Kd = [0,0,0]
+
+        self.error = [0.0,0.0,0.0]
+        self.prev_value = [0.0,0.0,0.0]
+        self.sum_error = [0.0,0.0,0.0]
+        self.out_pitch = 0.0
+        self.out_roll = 0.0
+        self.out_throttle = 0.0
+        self.max_values = [2000,2000,2000]
+        self.min_values = [1000,1000,1000]
+
+        self.drone_roll = 1500
+        self.drone_pitch = 1500
+        self.drone_throttle = 1500
+        #**************************************************
+
     def update_checksum(self):
         checksum = 0
         for j in self.rc_raw_data[3:-1]:
@@ -88,13 +110,51 @@ class Drone:
         tm.sleep(1)
         print('Pluto disconnected')
 
+    #Yet to be tested [critical]
+    def pid(self):
+        self.error[0] = self.drone_position[0] - self.setpoint[0]
+        self.error[1] = self.drone_position[1] - self.setpoint[1]
+        self.error[2] = self.drone_position[2] - self.setpoint[2]
+
+        self.out_roll = int(self.Kp[0] * self.error[0] + self.Kd[0]*(self.error[0]-self.prev_value[0]) + self.Ki[0]*self.sum_error[0])
+        self.out_pitch = int(self.Kp[1] * self.error[1] + self.Kd[1]*(self.error[1]-self.prev_value[1]) + self.Ki[1]*self.sum_error[1])
+        self.out_throttle = int(self.Kp[2] * self.error[2] + self.Kd[2]*(self.error[2]-self.prev_value[2]) + self.Ki[2]*self.sum_error[2])
+
+        self.drone_roll = 1500 - self.out_roll
+        self.drone_pitch = 1500 + self.out_pitch
+        self.drone_throttle = 1500 + self.out_throttle
+
+        if(self.drone_roll > self.max_values[0] ):
+            self.drone_roll = self.max_values[0]
+        if(self.drone_pitch > self.max_values[1] ):
+            self.drone_pitch = self.max_values[1]
+        if(self.drone_throttle > self.max_values[2] ):
+            self.drone_throttle = self.max_values[2]
+        if( self.drone_roll < self.min_values[0]):
+            self.drone_roll =  self.min_values[0]
+        if( self.drone_pitch < self.min_values[1]):
+            self.drone_pitch =  self.min_values[1]
+        if( self.drone_throttle < self.min_values[2]):
+            self.drone_throttle =  self.min_values[2]
+
+        self.prev_value[0] = self.error[0]
+        self.prev_value[1] = self.error[1]
+        self.prev_value[2] = self.error[2]
+        self.sum_error[0] = self.sum_error[0] + self.error[0]
+        self.sum_error[1] = self.sum_error[1] + self.error[1]
+        self.sum_error[2] = self.sum_error[2] + self.error[2]
+        # Need to look into anti windup for limiting integral term.
+
 def throttle_test(time):
     drone = Drone("192.168.4.1", 23, 1)
+    # drone.disarm() 
     drone.arm()
     drone.takeoff()
     clock_start = tm.time()
     while(tm.time()-clock_start < time):
-        drone.throttle((1100))
+        drone.roll((drone_roll)) 
+        drone.pitch((drone_pitch)) 
+        drone.throttle((drone_throttle)) 
         tm.sleep(0.022)
     drone.land()
     drone.disarm()
