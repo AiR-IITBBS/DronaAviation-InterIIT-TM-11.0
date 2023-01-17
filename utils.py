@@ -68,8 +68,8 @@ def show_fps(output):
 
 def print_coordinates(tvec):
     if len(tvec) != 0:
-        xpos = int(tvec[0][0][0]*100)
-        ypos = int(tvec[0][0][1]*100)
-        zpos = int(tvec[0][0][2]*100)
+        xpos = int(tvec[0]*100)
+        ypos = int(tvec[1]*100)
+        zpos = int(tvec[2]*100)
         print(f"x = {xpos} y = {ypos} z = {zpos}")
 
