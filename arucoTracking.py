@@ -1,49 +1,25 @@
-
-#Just Testing...not completed.
-
-import cv2 as cv
-from cv2 import aruco
 import numpy as np
+import cv2
+import sys
+from utils import ARUCO_DICT
+import time
 
-marker_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
+def pose_estimation(frame, aruco_dict_type, matrix_coefficients, distortion_coefficients):
 
-param_markers = aruco.DetectorParameters_create()
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    cv2.aruco_dict = cv2.aruco.Dictionary_get(aruco_dict_type)
+    parameters = cv2.aruco.DetectorParameters_create()
 
-cap = cv.VideoCapture(0)
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
-    gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    marker_corners, marker_IDs, reject = aruco.detectMarkers(
-        gray_frame, marker_dict, parameters=param_markers
-    )
-    if marker_corners:
-        for ids, corners in zip(marker_IDs, marker_corners):
-            cv.polylines(
-                frame, [corners.astype(np.int32)], True, (0, 255, 255), 4, cv.LINE_AA
-            )
-            corners = corners.reshape(4, 2)
-            corners = corners.astype(int)
-            top_right = corners[0].ravel()
-            top_left = corners[1].ravel()
-            bottom_right = corners[2].ravel()
-            bottom_left = corners[3].ravel()
-            cv.putText(
-                frame,
-                f"id: {ids[0]}",
-                top_right,
-                cv.FONT_HERSHEY_PLAIN,
-                1.3,
-                (200, 100, 0),
-                2,
-                cv.LINE_AA,
-            )
-            # print(ids, "  ", corners)
-    cv.imshow("frame", frame)
-    key = cv.waitKey(1)
-    if key == ord("q"):
-        break
-cap.release()
-cv.destroyAllWindows()
+    corners, ids, rejected_img_points = cv2.aruco.detectMarkers(gray, cv2.aruco_dict,parameters=parameters,
+        cameraMatrix=matrix_coefficients,
+        distCoeff=distortion_coefficients)
+
+    tvec =[]
+
+    if len(corners) > 0:
+        for i in range(0, len(ids)):
+            rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.02, matrix_coefficients, distortion_coefficients)
+            cv2.aruco.drawDetectedMarkers(frame, corners) 
+            cv2.aruco.drawAxis(frame, matrix_coefficients, distortion_coefficients, rvec, tvec, 0.01)  
+    return frame, tvec;

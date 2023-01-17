@@ -1,5 +1,11 @@
 import socket as skt
 import time as tm
+import argparse
+import sys
+import numpy as np
+import cv2 as cv
+from utils import ARUCO_DICT, show_fps, print_coordinates
+from arucoTracking import pose_estimation
 
 Drone_roll=0.0
 Drone_pitch=0.0
@@ -170,7 +176,43 @@ def throttle_test(time):
     drone.disarm()
     drone.disconnect()
 
-try:
-  throttle_test(5)
-except ConnectionAbortedError:
-  throttle_test(5)
+# try:
+#   throttle_test(5)
+# except ConnectionAbortedError:
+#   throttle_test(5)
+
+#--------------------------------main code---------------------------------
+if __name__ == '__main__':
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-t", "--type", type=str, default="DICT_ARUCO_ORIGINAL", help="Type of ArUCo tag to detect")
+    args = vars(ap.parse_args())
+
+    if ARUCO_DICT.get(args["type"], None) is None:
+        print(f"ArUCo tag type '{args['type']}' is not supported")
+        sys.exit(0)
+
+    aruco_dict_type = ARUCO_DICT[args["type"]]
+    calibration_matrix_path = "calibration_data/calibration_matrix.npy"
+    distortion_coefficients_path = "calibration_data/distortion_coefficients.npy"
+
+    k = np.load(calibration_matrix_path)
+    d = np.load(distortion_coefficients_path)
+
+    video = cv.VideoCapture(2)
+    tm.sleep(1.0)
+
+    while True:
+        ret, frame = video.read()
+        if not ret:
+            break
+        output, tvec = pose_estimation(frame, aruco_dict_type, k, d)
+        show_fps(output)
+        cv.imshow('Estimated Pose', output)
+        print_coordinates(tvec)
+        #check for exit
+        key = cv.waitKey(1) & 0xFF
+        if key == ord('q'):
+            break
+
+    video.release()
+    cv.destroyAllWindows()
