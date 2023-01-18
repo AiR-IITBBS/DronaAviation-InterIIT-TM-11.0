@@ -124,6 +124,7 @@ class Drone:
 
     #Yet to be tested [critical]
     def pid(self):
+        global Drone_roll, Drone_pitch, Drone_throttle
         self.error[0] = self.drone_position[0] - self.setpoint[0]
         self.error[1] = self.drone_position[1] - self.setpoint[1]
         self.error[2] = self.drone_position[2] - self.setpoint[2]
