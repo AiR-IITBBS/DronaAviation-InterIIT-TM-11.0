@@ -21,7 +21,7 @@ class PositionTracker:
         return self
 
     def read_position(self, id):
-        return self.position[id]
+        return self.position.get(id)
 
     def read_frame(self):
         return self.frame

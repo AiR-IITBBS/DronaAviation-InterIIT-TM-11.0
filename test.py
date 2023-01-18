@@ -17,7 +17,7 @@ pos_tracker.start()
 
 start = time.time()
 while (time.time()-start < 10):
-    print(pos_tracker.position.get(1))
+    print(pos_tracker.read_position(0))
     time.sleep(0.5)
 pos_tracker.stop()
 
