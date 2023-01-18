@@ -21,7 +21,7 @@ class PositionTracker:
         return self
 
     def read_position(self, id):
-        return self.position.get(id)
+        return self.position.get(id,[])
 
     def read_frame(self):
         return self.frame
@@ -58,6 +58,7 @@ class PositionTracker:
                     
                     self.position[ids[i][0]] = tvec[0][0]
                     self.last_track_time[ids[i][0]] = time.time()
+                    
             for key in self.last_track_time:
                 if((time.time() - self.last_track_time[key] > self.wait_time) and key in self.position):
                     self.position.pop(key)
