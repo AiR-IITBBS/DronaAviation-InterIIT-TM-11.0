@@ -222,9 +222,9 @@ def throttle_test(time):
     drone.disarm()
     drone.disconnect()
 
-try:
-  throttle_test(5)
-except ConnectionAbortedError:
-  throttle_test(5)
+# try:
+#   throttle_test(5)
+# except ConnectionAbortedError:
+#   throttle_test(5)
 
 # Will the values of setpoint get updated insdie the class through checkpoint function.

@@ -27,7 +27,7 @@ class Drone:
 
         #For PID******************************************
         self.drone_position = [0.0,0.0,0.0]
-        self.setpoint = [0,0,0]
+        self.setpoint = [0,0,0.5]
 
         self.Kp = [0,0,0]
         self.Ki = [0,0,0]
@@ -124,6 +124,8 @@ class Drone:
 
     #Yet to be tested [critical]
     def pid(self):
+        global Drone_pitch, Drone_roll, Drone_throttle
+
         self.error[0] = self.drone_position[0] - self.setpoint[0]
         self.error[1] = self.drone_position[1] - self.setpoint[1]
         self.error[2] = self.drone_position[2] - self.setpoint[2]
