@@ -19,7 +19,7 @@ class Drone:
         self.debug = debug
 
     def connect(self):
-        Thread(target=self.com_thread, args=()).start()
+        Thread(target=self.__com_thread, args=()).start()
         return self
 
     def disconnect(self):
@@ -28,7 +28,7 @@ class Drone:
             self.com.close()
         print('Disconnected...')
 
-    def com_thread(self):
+    def __com_thread(self):
         if self.debug: print('Thread Started')
         try:
             self.com.connect((self.IP_ADDRESS, self.PORT))
@@ -40,11 +40,12 @@ class Drone:
             return
         print("Connected...")
         try:
-            self.update()
+            self.__update()
         except:
+            print('Connection lost...retrying...')
             self.com_thread()
 
-    def update(self):
+    def __update(self):
         while True:
             if self.is_stopped:
                 if self.debug: print("Thread Stopped")
@@ -53,11 +54,11 @@ class Drone:
                 self.set_cmd()
                 self.cmd_set = False
             else:
-                self.set_rc_raw()
+                self.__set_rc_raw()
             time.sleep(0.022)
             
 
-    def update_checksum(self):
+    def __update_checksum(self):
         checksum = 0
         for j in self.rc_raw_data[3:-1]:
             checksum ^= j
@@ -67,15 +68,15 @@ class Drone:
             checksum ^= j
         self.set_cmd_data[7] = checksum
 
-    def get_LSB_MSB(self, val):
+    def __get_LSB_MSB(self, val):
         return bytearray([val % 256, val // 256])
 
-    def set_rc_raw(self):
-        self.update_checksum()
+    def __set_rc_raw(self):
+        self.__update_checksum()
         self.com.sendall(self.rc_raw_data)
 
     def set_cmd(self):
-        self.update_checksum()
+        self.__update_checksum()
         self.com.sendall(self.set_cmd_data)
 
     def arm(self):
@@ -104,34 +105,34 @@ class Drone:
 
     def set_throttle(self, val):
         if self.debug: print(f"Set Throttle to {val}")
-        data = bytearray(self.get_LSB_MSB(val))
+        data = bytearray(self.__get_LSB_MSB(val))
         self.rc_raw_data[9] = data[0]
         self.rc_raw_data[10] = data[1]
 
     def set_pitch(self, val):
         if self.debug: print(f"Set Pitch to {val}")
-        data = bytearray(self.get_LSB_MSB(val))
+        data = bytearray(self.__get_LSB_MSB(val))
         self.rc_raw_data[7] = data[0]
         self.rc_raw_data[8] = data[1]
 
     def set_roll(self, val):
         if self.debug: print(f"Set Roll to {val}")
-        data = bytearray(self.get_LSB_MSB(val))
+        data = bytearray(self.__get_LSB_MSB(val))
         self.rc_raw_data[5] = data[0]
         self.rc_raw_data[6] = data[1]
 
     def set_yaw(self, val):
         if self.debug: print(f"Set Yaw to {val}")
-        data = bytearray(self.get_LSB_MSB(val))
+        data = bytearray(self.__get_LSB_MSB(val))
         self.rc_raw_data[11] = data[0]
         self.rc_raw_data[12] = data[1]
 
     def set_state(self, throttle, pitch, roll, yaw=1500):
         if self.debug: print(f"Set States to T: {throttle}, P: {pitch}, R: {roll}, Y: {yaw}")
-        throttle_data = bytearray(self.get_LSB_MSB(throttle))
-        pitch_data = bytearray(self.get_LSB_MSB(pitch))
-        roll_data = bytearray(self.get_LSB_MSB(roll))
-        yaw_data = bytearray(self.get_LSB_MSB(yaw))
+        throttle_data = bytearray(self.__get_LSB_MSB(throttle))
+        pitch_data = bytearray(self.__get_LSB_MSB(pitch))
+        roll_data = bytearray(self.__get_LSB_MSB(roll))
+        yaw_data = bytearray(self.__get_LSB_MSB(yaw))
         self.rc_raw_data[9] = throttle_data[0]
         self.rc_raw_data[10] = throttle_data[1]
         self.rc_raw_data[7] = pitch_data[0]
