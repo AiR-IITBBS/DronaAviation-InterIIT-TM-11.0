@@ -10,11 +10,10 @@ class pid:
 
     def __init__(self , set_pt):
 
-        #For PID******************************************
         self.drone_position = [0.0,0.0,0.0]
         self.setpoint = set_pt
 
-        self.Kp = [100 , 100 , 100]
+        self.Kp = [100 , 100 , 350]
         self.Ki = [0 , 0 , 0]
         self.Kd = [0 , 0 , 0]
 
@@ -24,13 +23,12 @@ class pid:
         self.out_pitch = 0.0
         self.out_roll = 0.0
         self.out_throttle = 0.0
-        self.max_values = [1600,1600,1600]
-        self.min_values = [1400,1400,1400]
+        self.max_values = [1600,1600,1750]
+        self.min_values = [1400,1400,1200]
 
         self.drone_roll = 1500
         self.drone_pitch = 1500
         self.drone_throttle = 1500
-        #**************************************************
 
     def pid(self , curr_pos):
 
@@ -48,6 +46,7 @@ class pid:
 
         self.drone_roll = 1500 - self.out_roll
         self.drone_pitch = 1500 + self.out_pitch
+        # self.drone_throttle = 1500 + self.out_throttle
         self.drone_throttle = 1500 + self.out_throttle
 
         if(self.drone_roll > self.max_values[0] ):
@@ -78,5 +77,7 @@ class pid:
         Drone_error = [ self.error[0] , self.error[1] , self.error[2] ]
 
         print(Drone_pitch,Drone_roll,Drone_throttle)
+
+        return [Drone_throttle , Drone_pitch , Drone_roll]
         
 
