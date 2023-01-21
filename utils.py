@@ -82,20 +82,20 @@ def plot(commands,coords,flight_duration,y="pitch",all=False):
 	x = np.linspace(0 , flight_duration , len(coords))
 	if(all):
 		plt.subplot(1,3,1)
-		plt.scatter(x , coords[:,0] , label='x-coords (scaled)')
-		plt.scatter(x , commands[:,2] , label='roll')
+		plt.scatter(x , coords[:,0] , label='x-coords (scaled)' , s=2)
+		plt.scatter(x , commands[:,2] , label='roll', s=2)
 		plt.xlabel('Time')
 		plt.legend()
 
 		plt.subplot(1,3,2)
-		plt.scatter(x , coords[:,1] , label='y-coords (scaled)')
-		plt.scatter(x , commands[:,1] , label='pitch')
+		plt.scatter(x , coords[:,1] , label='y-coords (scaled)', s=2)
+		plt.scatter(x , commands[:,1] , label='pitch', s=2)
 		plt.xlabel('Time')
 		plt.legend()
 
 		plt.subplot(1,3,3)
-		plt.scatter(x , coords[:,2] , label='z-coords (scaled)')
-		plt.scatter(x , commands[:,0] , label='throttle')
+		plt.scatter(x , coords[:,2] , label='z-coords (scaled)', s=2)
+		plt.scatter(x , commands[:,0] , label='throttle', s=2)
 		plt.xlabel('Time')
 		plt.legend()
 
@@ -103,22 +103,22 @@ def plot(commands,coords,flight_duration,y="pitch",all=False):
 		return
 
 	if(y=="throttle"):
-		plt.scatter(x , coords[:,2] , label='z-coords (scaled)')
-		plt.scatter(x , commands[:,0] , label='throttle')
+		plt.scatter(x , coords[:,2] , label='z-coords (scaled)', s=2)
+		plt.scatter(x , commands[:,0] , label='throttle', s=2)
 		plt.xlabel('Time')
 		plt.legend()
 		plt.show()
 		return
 	elif(y=="pitch"):
-		plt.scatter(x , coords[:,1] , label='y-coords (scaled)')
-		plt.scatter(x , commands[:,1] , label='pitch')
+		plt.scatter(x , coords[:,1] , label='y-coords (scaled)', s=2)
+		plt.scatter(x , commands[:,1] , label='pitch', s=2)
 		plt.xlabel('Time')
 		plt.legend()
 		plt.show()
 		return
 	elif(y=="roll"):
-		plt.scatter(x , coords[:,0] , label='x-coords (scaled)')
-		plt.scatter(x , commands[:,2] , label='roll')
+		plt.scatter(x , coords[:,0] , label='x-coords (scaled)', s=2)
+		plt.scatter(x , commands[:,2] , label='roll', s=2)
 		plt.xlabel('Time')
 		plt.legend()
 		plt.legend()

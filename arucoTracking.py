@@ -1,4 +1,5 @@
 from threading import Thread
+from numpy import array as arr
 import cv2
 import time
 
@@ -15,6 +16,7 @@ class PositionTracker:
         self.distortion_coefficients = distortion_coefficients
         self.display = display
         self.wait_time = wait_time
+        self.origin_position = [0.0, 0.0, 0.0]
 
     def start(self):
         Thread(target=self.update, args=()).start()
@@ -32,7 +34,9 @@ class PositionTracker:
         self.stream.release()
         cv2.destroyAllWindows()
         
-
+    def set_origin(self, origin):
+        self.origin_position = origin
+        
     def update(self):
         while True:
             if self.stopped:
@@ -56,7 +60,7 @@ class PositionTracker:
                     cv2.aruco.drawDetectedMarkers(self.frame, corners) 
                     cv2.aruco.drawAxis(self.frame, self.matrix_coefficients, self.distortion_coefficients, rvec, tvec, 0.01)
                     
-                    self.position[ids[i][0]] = tvec[0][0]
+                    self.position[ids[i][0]] = list(arr(tvec[0][0]) - arr(self.origin_position))
                     self.last_track_time[ids[i][0]] = time.time()
                     
             for key in self.last_track_time:

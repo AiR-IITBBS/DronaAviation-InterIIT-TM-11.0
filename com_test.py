@@ -13,7 +13,6 @@ def com_test():
 
     #Note : disarm after land and rearm before takeoff is mandatory.
     # so..integrated arm and disarm inside takeoff and land.
-
     drone.takeoff()
     drone.set_state(1500, 1500, 1500)
     time.sleep(4)

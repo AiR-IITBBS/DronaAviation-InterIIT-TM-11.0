@@ -5,7 +5,7 @@ import sys
 import numpy as np
 import cv2 as cv
 from utils import ARUCO_DICT, show_fps, print_coordinates
-from arucoTracking import pose_estimation
+from arucoTracking import PositionTracker
 
 Drone_roll=0.0
 Drone_pitch=0.0
@@ -27,9 +27,9 @@ class Drone:
 
         #For PID******************************************
         self.drone_position = [0.0,0.0,0.0]
-        self.setpoint = [0,0,0.5]
+        self.setpoint = [0.5,0,0]
 
-        self.Kp = [0,0,0]
+        self.Kp = [100,100,100]
         self.Ki = [0,0,0]
         self.Kd = [0,0,0]
 
@@ -39,8 +39,8 @@ class Drone:
         self.out_pitch = 0.0
         self.out_roll = 0.0
         self.out_throttle = 0.0
-        self.max_values = [2000,2000,2000]
-        self.min_values = [1000,1000,1000]
+        self.max_values = [1600,1600,1600]
+        self.min_values = [1400,1400,1400]
 
         self.drone_roll = 1500
         self.drone_pitch = 1500
@@ -165,7 +165,7 @@ class Drone:
 
 def throttle_test(time):
     drone = Drone("192.168.4.1", 23, 1)
-    # drone.disarm() 
+    drone.disarm()
     drone.arm()
     drone.takeoff()
     clock_start = tm.time()
@@ -183,7 +183,7 @@ def throttle_test(time):
 # except ConnectionAbortedError:
 #   throttle_test(5)
 
-#--------------------------------main code---------------------------------
+# --------------------------------main code---------------------------------
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument("-t", "--type", type=str, default="DICT_ARUCO_ORIGINAL", help="Type of ArUCo tag to detect")
@@ -200,14 +200,14 @@ if __name__ == '__main__':
     k = np.load(calibration_matrix_path)
     d = np.load(distortion_coefficients_path)
 
-    video = cv.VideoCapture(2)
-    tm.sleep(1.0)
+    # video = cv.VideoCapture(2)
+    # tm.sleep(1.0)
 
     while True:
         ret, frame = video.read()
         if not ret:
             break
-        output, tvec = pose_estimation(frame, aruco_dict_type, k, d)
+        output, tvec = PositionTracker(frame, aruco_dict_type, k, d)
         show_fps(output)
         cv.imshow('Estimated Pose', output)
         print_coordinates(tvec)
@@ -216,5 +216,5 @@ if __name__ == '__main__':
         if key == ord('q'):
             break
 
-    video.release()
-    cv.destroyAllWindows()
+    # video.release()
+    # cv.destroyAllWindows()

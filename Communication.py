@@ -42,6 +42,7 @@ class Drone:
         try:
             self.__update()
         except:
+            # update error message
             print('Connection lost...retrying...')
             self.com_thread()
 
@@ -82,13 +83,11 @@ class Drone:
     def arm(self):
         self.rc_raw_data[19] = 220
         self.rc_raw_data[20] = 5
-        time.sleep(2)
         if self.debug: print("Armed...")
 
     def disarm(self):
         self.rc_raw_data[19] = 176
         self.rc_raw_data[20] = 4
-        time.sleep(2)
         if self.debug: print("Disarmed...")
 
     def takeoff(self):
@@ -130,7 +129,7 @@ class Drone:
         self.rc_raw_data[12] = data[1]
 
     def set_state(self, throttle, pitch, roll, yaw=1500):
-        if self.debug: print(f"Set States to T: {throttle}, P: {pitch}, R: {roll}, Y: {yaw}")
+        # if self.debug: print(f"Set States to T: {throttle}, P: {pitch}, R: {roll}, Y: {yaw}")
         throttle_data = bytearray(self.__get_LSB_MSB(throttle))
         pitch_data = bytearray(self.__get_LSB_MSB(pitch))
         roll_data = bytearray(self.__get_LSB_MSB(roll))

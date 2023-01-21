@@ -1,103 +1,66 @@
-import socket as skt,time as tm
+from arucoTracking import PositionTracker
+from Communication import Drone
+from pidControl import PIDController
+from utils import ARUCO_DICT, print_coordinates
+import time as tm
+import numpy as np
+import matplotlib.pyplot as plt
 
-sz=1024
-myDrone=skt.socket(skt.AF_INET, skt.SOCK_STREAM)
-myDrone.connect(("192.168.4.1" , 23))
-myDrone.setsockopt(skt.SOL_SOCKET, skt.SO_KEEPALIVE, 1)
-header=bytearray([ord('$') , ord('M') , ord('<')])
+def hover_test( flight_duration = 6 , id=5 ):
 
-#MSP_SET_RAW_RC
-init_val = bytearray([16,200,220,5,220,5,220,5,220,5,176,4,232,3,220,5,176,4,234])
-pack_dat = header[:]
-pack_dat.extend(init_val[:])
+    throttle_data = []
+    z_coord = []
 
-# print(pack_dat)
+    aruco_dict_type = ARUCO_DICT["DICT_4X4_250"]
+    calibration_matrix_path = "calibration_data/calibration_matrix.npy"
+    distortion_coefficients_path = "calibration_data/distortion_coefficients.npy"
 
-def update_checksum(packet):
-    xor_arr=packet[3:-1]
-    i=0
-    for j in xor_arr:
-        i^=j
-    return i
+    k = np.load(calibration_matrix_path)
+    d = np.load(distortion_coefficients_path)
 
-def get_LSB_MSB(val):
-    return bytearray( [val%256 , val//256] )
+    pos_tracker = PositionTracker(aruco_dict_type, k, d, camera_src=0, wait_time=1)
+    pos_tracker.start()
 
-def arm():           
-    pack_dat[19]=220
-    pack_dat[20]=5
-    pack_dat[21]=update_checksum(pack_dat)
-    print("Armed")
-    myDrone.send(pack_dat)
-
-def throttle(val):
-    dat=bytearray(get_LSB_MSB(val))
-    pack_dat[9]=dat[0]
-    pack_dat[10]=dat[1]
-    pack_dat[21]=update_checksum(pack_dat)
-    print(pack_dat[21])
-    myDrone.send(pack_dat)
-
-def pitch(val):
-    dat= bytearray(get_LSB_MSB(val))
-    pack_dat[7]=dat[0]
-    pack_dat[8]=dat[1]
-    pack_dat[21]=update_checksum(pack_dat)
-    myDrone.send(pack_dat)
+    drone = Drone("192.168.4.1", 23, 5, debug=True) #creates drone object, set debug to true to get console output on every action.
+    drone.connect() #starts looping in a separate thread
 
 
-def roll(val):
-    dat= bytearray(get_LSB_MSB(val))
-    pack_dat[5]=dat[0]
-    pack_dat[6]=dat[1]
-    pack_dat[21]=update_checksum(pack_dat)
-    myDrone.send(pack_dat)
+    k_values = [[],[],[]]
+    pid = PIDController()
+
+    init_pos = np.array(pos_tracker.read_position(id))   
+    start = tm.time()
+    while( len(init_pos)==0 and tm.time()-start < flight_duration):
+        # print(init_pos)
+        print("Detecting Drone")
+        tm.sleep(1)
+        init_pos = np.array(pos_tracker.read_position(id))  #pose-estimation
+
+    print("Initial Position",init_pos)
+    drone.takeoff()
+    
+    while( tm.time()-start < flight_duration):
+
+        # new_pos = np.array(pos_tracker.read_position(id)) - init_pos  
+        new_pos = np.array(pos_tracker.read_position(id))  
+ 
+        print(new_pos)
+        if(len(new_pos) == 0):
+            break
+        params = pid.pid(new_pos)
+        throttle_data.append(params[0])
+        z_coord.append(new_pos[2])
+        drone.set_state(params[0], params[1], params[2])
+    drone.land()
+    pos_tracker.stop()
+    drone.disconnect()
+    print(len(throttle_data))
+    x = np.linspace(0 , 10 , len(throttle_data))
+    plt.scatter(x,throttle_data,s=1)
+    plt.scatter(x,np.array(z_coord)*100 + 1500,s=1)
+    plt.show()
+    return
 
 
-def yaw(val):
-    dat= bytearray(get_LSB_MSB(val))
-    pack_dat[11]=dat[0]
-    pack_dat[12]=dat[1]
-    pack_dat[21]=update_checksum(pack_dat)
-    myDrone.send(pack_dat)
+hover_test()
 
-
-def takeoff():
-    dat = bytearray( [ 2,217,1,0,1 ] )
-    packet = header[:]
-    packet.extend(dat)
-    packet[7]=update_checksum(packet)
-    myDrone.send(packet)
-
-
-def land():
-    dat = bytearray( [ 2,217,2,0,1 ] )
-    packet = header[:]
-    packet.extend(dat)
-    packet[7]=update_checksum(packet)
-    myDrone.send(packet)
-
-
-def disarm():
-    dat = pack_dat[:]
-    dat[19]=176
-    dat[20]=4
-    dat[21] = update_checksum(dat)
-    myDrone.send(dat)
-
-arm()
-tm.sleep(2)
-
-takeoff()
-print("TookOff")
-clock_start = tm.time()
-while(tm.time()-clock_start < 10):
-    throttle((1100))
-    tm.sleep(0.022)
-land()
-print('Landed')
-tm.sleep(5)
-disarm()
-print("Disarmed")
-myDrone.close()
-print("Disconnected")

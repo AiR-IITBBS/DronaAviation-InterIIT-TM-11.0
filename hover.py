@@ -1,22 +1,33 @@
+from utils import ARUCO_DICT, print_coordinates , plot
 from arucoTracking import PositionTracker
 from Communication import Drone
-from utils import ARUCO_DICT, print_coordinates , plot
-import pid_controller as PID
+from pidControl import PIDController
 import time as tm
 import numpy as np
 import matplotlib.pyplot as plt
 
-def hover_test( flight_duration = 10 , id=5 ):
+def hover(flight_duration = 10 , id=5 ):
 
+
+    # setup values..........................................
+    
     commands_data=[]
     coords_data=[]
 
     aruco_dict_type = ARUCO_DICT["DICT_4X4_250"]
     calibration_matrix_path = "calibration_data/calibration_matrix.npy"
     distortion_coefficients_path = "calibration_data/distortion_coefficients.npy"
+    k_values =  [[150 , 100, 150], 
+                 [0, 0   , 0  ], 
+                 [  0 ,   0 ,   0]] # PID, XYZ
+    range = [[1400, 1600], [1400, 1600], [1400, 1600]] # TPR
 
     k = np.load(calibration_matrix_path)
     d = np.load(distortion_coefficients_path)
+
+    #........................................................
+
+    #initialize tracking and Drone communication.............
 
     pos_tracker = PositionTracker(aruco_dict_type, k, d, camera_src=2, wait_time=1)
     pos_tracker.start()
@@ -31,10 +42,11 @@ def hover_test( flight_duration = 10 , id=5 ):
         # print(init_pos)
         print("Detecting Drone")
         tm.sleep(1)
-        init_pos = np.array(pos_tracker.read_position(id))  #pose-estimation
+        init_pos = np.array(pos_tracker.read_position(id))
+        pos_tracker.set_origin(init_pos)
 
 
-    pid = PID.pid([-0.31352251, -0.16215789,  0.8] , init_pos)
+    pid = PIDController([0, 0, -0.4], k_values, range)
     #[-0.31352251, -0.16215789,  0.8]
 
     print("Initial Position",init_pos)
@@ -48,10 +60,10 @@ def hover_test( flight_duration = 10 , id=5 ):
         print(new_pos)
         if(len(new_pos) == 0):
             break
-        params = pid.pid(new_pos)
-        commands_data.append(params)
+        calculated_state = pid.calculate_state(new_pos)
+        commands_data.append(calculated_state)
         coords_data.append( new_pos )
-        drone.set_state(params[0], params[1], params[2])
+        drone.set_state(calculated_state[0], calculated_state[1], calculated_state[2])
     drone.land()
     pos_tracker.stop()
     drone.disconnect()
@@ -59,5 +71,5 @@ def hover_test( flight_duration = 10 , id=5 ):
     return
 
 
-hover_test()
+hover()
 
