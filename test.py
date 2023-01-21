@@ -16,8 +16,8 @@ pos_tracker = PositionTracker(aruco_dict_type, k, d)
 pos_tracker.start()
 
 start = time.time()
-while (time.time()-start < 20):
-    print(pos_tracker.read_position(10))
+while (time.time()-start < 10):
+    print(pos_tracker.read_position(5))
     time.sleep(0.5)
 pos_tracker.stop()
 

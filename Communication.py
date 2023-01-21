@@ -82,11 +82,13 @@ class Drone:
     def arm(self):
         self.rc_raw_data[19] = 220
         self.rc_raw_data[20] = 5
+        time.sleep(2)
         if self.debug: print("Armed...")
 
     def disarm(self):
         self.rc_raw_data[19] = 176
         self.rc_raw_data[20] = 4
+        time.sleep(2)
         if self.debug: print("Disarmed...")
 
     def takeoff(self):

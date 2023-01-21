@@ -1,3 +1,5 @@
+from numpy import array as arr
+
 Drone_roll=0.0
 Drone_pitch=0.0
 Drone_throttle=0.0
@@ -8,9 +10,10 @@ permissible_error_location = 0.05
 
 class pid:
 
-    def __init__(self , set_pt):
+    def __init__(self , set_pt , origin):
 
         self.drone_position = [0.0,0.0,0.0]
+        # self.setpoint = list(arr(set_pt) - arr(origin))
         self.setpoint = set_pt
 
         self.Kp = [100 , 100 , 350]
@@ -23,7 +26,7 @@ class pid:
         self.out_pitch = 0.0
         self.out_roll = 0.0
         self.out_throttle = 0.0
-        self.max_values = [1600,1600,1750]
+        self.max_values = [1600,1600,1650]
         self.min_values = [1400,1400,1200]
 
         self.drone_roll = 1500

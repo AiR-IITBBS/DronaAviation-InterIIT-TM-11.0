@@ -1,5 +1,7 @@
 import cv2
 import time as tm
+import matplotlib.pyplot as plt
+import numpy as np
 
 ARUCO_DICT = {
 	"DICT_4X4_50": cv2.aruco.DICT_4X4_50,
@@ -73,3 +75,53 @@ def print_coordinates(tvec):
         zpos = int(tvec[2]*100)
         print(f"x = {xpos} y = {ypos} z = {zpos}")
 
+def plot(commands,coords,flight_duration,y="pitch",all=False):
+	commands=np.array(commands)
+	coords=np.array(coords)
+	coords=coords*100 + 1500
+	x = np.linspace(0 , flight_duration , len(coords))
+	if(all):
+		plt.subplot(1,3,1)
+		plt.scatter(x , coords[:,0] , label='x-coords (scaled)')
+		plt.scatter(x , commands[:,2] , label='roll')
+		plt.xlabel('Time')
+		plt.legend()
+
+		plt.subplot(1,3,2)
+		plt.scatter(x , coords[:,1] , label='y-coords (scaled)')
+		plt.scatter(x , commands[:,1] , label='pitch')
+		plt.xlabel('Time')
+		plt.legend()
+
+		plt.subplot(1,3,3)
+		plt.scatter(x , coords[:,2] , label='z-coords (scaled)')
+		plt.scatter(x , commands[:,0] , label='throttle')
+		plt.xlabel('Time')
+		plt.legend()
+
+		plt.show()
+		return
+
+	if(y=="throttle"):
+		plt.scatter(x , coords[:,2] , label='z-coords (scaled)')
+		plt.scatter(x , commands[:,0] , label='throttle')
+		plt.xlabel('Time')
+		plt.legend()
+		plt.show()
+		return
+	elif(y=="pitch"):
+		plt.scatter(x , coords[:,1] , label='y-coords (scaled)')
+		plt.scatter(x , commands[:,1] , label='pitch')
+		plt.xlabel('Time')
+		plt.legend()
+		plt.show()
+		return
+	elif(y=="roll"):
+		plt.scatter(x , coords[:,0] , label='x-coords (scaled)')
+		plt.scatter(x , commands[:,2] , label='roll')
+		plt.xlabel('Time')
+		plt.legend()
+		plt.legend()
+		plt.show()
+	else:
+		print("Invalid y-value")

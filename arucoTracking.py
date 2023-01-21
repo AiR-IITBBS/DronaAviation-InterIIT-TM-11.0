@@ -4,7 +4,7 @@ import time
 
 class PositionTracker:
     def __init__(self, aruco_dict_type, matrix_coefficients, distortion_coefficients,wait_time=1, display=True, camera_src=0):
-        self.stream = cv2.VideoCapture(camera_src)
+        self.stream = cv2.VideoCapture(camera_src , cv2.CAP_DSHOW)
         time.sleep(1)
         (self.grabbed, self.frame) = (False, [])
         self.stopped = False
