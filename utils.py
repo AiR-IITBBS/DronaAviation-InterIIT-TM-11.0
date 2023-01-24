@@ -83,13 +83,13 @@ def plot(commands,coords,flight_duration,y="pitch",all=False):
 	if(all):
 		plt.subplot(1,3,1)
 		plt.scatter(x , coords[:,0] , label='x-coords (scaled)' , s=2)
-		plt.scatter(x , commands[:,2] , label='roll', s=2)
+		plt.scatter(x , commands[:,1] , label='pitch', s=2)
 		plt.xlabel('Time')
 		plt.legend()
 
 		plt.subplot(1,3,2)
 		plt.scatter(x , coords[:,1] , label='y-coords (scaled)', s=2)
-		plt.scatter(x , commands[:,1] , label='pitch', s=2)
+		plt.scatter(x , commands[:,2] , label='roll', s=2)
 		plt.xlabel('Time')
 		plt.legend()
 
@@ -110,14 +110,14 @@ def plot(commands,coords,flight_duration,y="pitch",all=False):
 		plt.show()
 		return
 	elif(y=="pitch"):
-		plt.scatter(x , coords[:,1] , label='y-coords (scaled)', s=2)
+		plt.scatter(x , coords[:,0] , label='x-coords (scaled)', s=2)
 		plt.scatter(x , commands[:,1] , label='pitch', s=2)
 		plt.xlabel('Time')
 		plt.legend()
 		plt.show()
 		return
 	elif(y=="roll"):
-		plt.scatter(x , coords[:,0] , label='x-coords (scaled)', s=2)
+		plt.scatter(x , coords[:,1] , label='y-coords (scaled)', s=2)
 		plt.scatter(x , commands[:,2] , label='roll', s=2)
 		plt.xlabel('Time')
 		plt.legend()
@@ -125,3 +125,17 @@ def plot(commands,coords,flight_duration,y="pitch",all=False):
 		plt.show()
 	else:
 		print("Invalid y-value")
+
+def plot_track(coords1, coords2, duration):
+    coords1 = np.array(coords1)*100
+    coords2 = np.array(coords2)*100
+    x = np.linspace(0 , duration , len(coords1))
+    plt.scatter(x , coords1[:,2] , label='z-coords (original)' , s=2)
+    plt.scatter(x , coords2[:,2] , label='z-coords (smooth)' , s=2)
+    plt.xlabel('Time')
+    plt.ylabel('z-value')
+    plt.legend()
+    plt.show()
+    return
+
+
