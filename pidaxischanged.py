@@ -57,6 +57,12 @@ class PIDController:
 
         # print(self.drone_pitch,self.drone_roll,self.drone_throttle)
         return [self.drone_throttle , self.drone_pitch , self.drone_roll]
+
+    def set_target(self,checkpoint):
+        self.target_position = checkpoint
+
+    def get_error(self):
+        return self.error
         
     def clamp_state_values(self):
         if(self.drone_roll > self.max_values[2] ):
