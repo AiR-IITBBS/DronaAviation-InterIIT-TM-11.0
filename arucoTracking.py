@@ -7,17 +7,17 @@ import numpy as np
 
 parameters = cv2.aruco.DetectorParameters_create()
             
-parameters.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX
-parameters.minOtsuStdDev = 3.0
-parameters.maxErroneousBitsInBorderRate = 0.35
-parameters.perspectiveRemovePixelPerCell = 6
-parameters.perspectiveRemoveIgnoredMarginPerCell = 0.2
-parameters.maxErroneousBitsInBorderRate = 0.8
-parameters.errorCorrectionRate = 0.8
+# parameters.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX
+# parameters.minOtsuStdDev = 3.0
+# parameters.maxErroneousBitsInBorderRate = 0.35
+# parameters.perspectiveRemovePixelPerCell = 6
+# parameters.perspectiveRemoveIgnoredMarginPerCell = 0.2
+# parameters.maxErroneousBitsInBorderRate = 0.8
+# parameters.errorCorrectionRate = 0.8
        
 
 class PositionTracker:
-    def __init__(self, aruco_dict_type, matrix_coefficients, distortion_coefficients,wait_time=1, display=True, camera_src=0):
+    def __init__(self, aruco_dict_type, matrix_coefficients, distortion_coefficients,wait_time=1, display=True, camera_src=0, smoothing_factor=5):
         self.stream = cv2.VideoCapture(camera_src , cv2.CAP_DSHOW)
         self.aruco_dict_type = aruco_dict_type
         time.sleep(1)
@@ -33,7 +33,7 @@ class PositionTracker:
         self.origin_position = [0.0, 0.0, 0.0]
         self.smooth_position = {}
         self.position_store = {}
-        self.smoothing = 10
+        self.smoothing = smoothing_factor
 
     def start(self):
         Thread(target=self.update, args=()).start()
@@ -93,26 +93,43 @@ class PositionTracker:
     def generate_smooth_position(self, id):
         if self.position_store.get(id, 0) == 0:
             self.position_store[id] = []
-        self.position_store[id].insert(0, self.position[id])
+        self.position_store[id].insert(0, self.position[id]+[time.time()])
         if len(self.position_store[id]) > self.smoothing:
             self.position_store[id].pop()
-        self.smooth_position[id] = [0.0, 0.0, 0.0]
+        
         # for pos in self.position_store[id]:
         #     self.smooth_position[id][0] += (pos[0]/self.smoothing)
         #     self.smooth_position[id][1] += (pos[1]/self.smoothing)
         #     self.smooth_position[id][2] += (pos[2]/self.smoothing)
-        self.smooth_position[id] = self.moving_average(self.position_store[id])
+        self.smooth_position[id] = self.median_smoothing(self.position_store[id])
         
         # self.smooth_position[0] = statistics.median(np.array(self.position_store)[:,0])
         # self.smooth_position[1] = statistics.median(np.array(self.position_store)[:,1])
         # self.smooth_position[2] = statistics.median(np.array(self.position_store)[:,2])
     def moving_average(self, position_store):
         n = len(position_store)
-        smooth_position = np.array([0.0, 0.0, 0.0])
+        smooth_position = np.array([0.0, 0.0, 0.0,0.0])
         for i in position_store:
             smooth_position += i
         smooth_position /= n
-        return list(smooth_position)
+        return list(smooth_position[0:3])
+
+    def median_smoothing(self, position_store):
+        position_store = np.array(position_store)
+        n = len(position_store)
+        x_mean = sum(position_store[:,0])/n
+        y_mean = sum(position_store[:,1])/n
+        z_median = statistics.median(position_store[:,2])
+        return [x_mean,y_mean,z_median]
+
+
+    def get_velocity(self,id=0):
+        if(len(self.position_store[id])<=2 or self.position_store.get(id,0)==0):
+            return 10000
+        position = np.array(self.position_store.get(id))
+        velocity = (position[0][0:3] - position[1][0:3])/(position[0][3]-position[1][3])
+        rms_velo = velocity[0]**2 + velocity[1]**2 + velocity[2]**2
+        return rms_velo
 
 
 

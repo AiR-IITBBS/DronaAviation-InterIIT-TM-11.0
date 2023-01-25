@@ -102,6 +102,7 @@ class Drone:
         self.set_cmd_data[5] = 2
         self.set_cmd_data[6] = 0
         self.cmd_set = True
+        time.sleep(3)
         self.disarm()
 
     def set_throttle(self, val):
