@@ -17,7 +17,7 @@ parameters = cv2.aruco.DetectorParameters_create()
        
 
 class PositionTracker:
-    def __init__(self, aruco_dict_type, matrix_coefficients, distortion_coefficients,wait_time=1, display=True, camera_src=0, smoothing_factor=5):
+    def __init__(self, aruco_dict_type, matrix_coefficients, distortion_coefficients,wait_time=1, display=True, camera_src=0, smoothing=[10, 10, 10]):
         self.stream = cv2.VideoCapture(camera_src , cv2.CAP_DSHOW)
         self.aruco_dict_type = aruco_dict_type
         time.sleep(1)
@@ -33,7 +33,7 @@ class PositionTracker:
         self.origin_position = [0.0, 0.0, 0.0]
         self.smooth_position = {}
         self.position_store = {}
-        self.smoothing = smoothing_factor
+        self.smoothing = smoothing
 
     def start(self):
         Thread(target=self.update, args=()).start()
@@ -94,14 +94,14 @@ class PositionTracker:
         if self.position_store.get(id, 0) == 0:
             self.position_store[id] = []
         self.position_store[id].insert(0, self.position[id]+[time.time()])
-        if len(self.position_store[id]) > self.smoothing:
+        if len(self.position_store[id]) > max(self.smoothing):
             self.position_store[id].pop()
         
         # for pos in self.position_store[id]:
         #     self.smooth_position[id][0] += (pos[0]/self.smoothing)
         #     self.smooth_position[id][1] += (pos[1]/self.smoothing)
         #     self.smooth_position[id][2] += (pos[2]/self.smoothing)
-        self.smooth_position[id] = self.median_smoothing(self.position_store[id])
+        self.smooth_position[id] = self.moving_average(self.position_store[id])
         
         # self.smooth_position[0] = statistics.median(np.array(self.position_store)[:,0])
         # self.smooth_position[1] = statistics.median(np.array(self.position_store)[:,1])
@@ -109,9 +109,12 @@ class PositionTracker:
     def moving_average(self, position_store):
         n = len(position_store)
         smooth_position = np.array([0.0, 0.0, 0.0,0.0])
-        for i in position_store:
-            smooth_position += i
-        smooth_position /= n
+        for i in range(min(n, self.smoothing[0])):
+            smooth_position[0] += position_store[i][0]/min(n, self.smoothing[0])
+        for i in range(min(n, self.smoothing[1])):
+            smooth_position[1] += position_store[i][1]/min(n, self.smoothing[1])
+        for i in range(min(n, self.smoothing[2])):
+            smooth_position[2] += position_store[i][2]/min(n, self.smoothing[2])
         return list(smooth_position[0:3])
 
     def median_smoothing(self, position_store):

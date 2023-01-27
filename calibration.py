@@ -15,6 +15,7 @@ def calibrate(cam_src, frame_count, square_size, width, height, visualize=False)
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
     video_stream = cv2.VideoCapture(cam_src)
+    time.sleep(1)
 
     objp = np.zeros((height*width, 3), np.float32)
     objp[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)
@@ -61,7 +62,7 @@ def calibrate(cam_src, frame_count, square_size, width, height, visualize=False)
 
 if __name__ == '__main__':
     time.sleep(5)
-    ret, mtx, dist, rvecs, tvecs = calibrate(2, 40, 0.024, 10, 7, True)
+    ret, mtx, dist, rvecs, tvecs = calibrate(2, 30, 0.0178, 10, 7, True)
 
     print(mtx)
     print(dist)

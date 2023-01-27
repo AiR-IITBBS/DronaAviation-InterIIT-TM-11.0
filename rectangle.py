@@ -5,7 +5,7 @@ from pidaxischanged import PIDController
 import time as tm
 import numpy as np
 
-def visit_checkpoints( checkpoints, flight_duration_per_checkpoint = 10, x_permissible_error = 0.05 , y_permissible_error = 0.05, z_permissible_error = 0.05 , permissible_rms_velocity=0.02, id=0 ):
+def visit_checkpoints( checkpoints, flight_duration_per_checkpoint = 10, x_permissible_error = 0.07 , y_permissible_error = 0.07, z_permissible_error = 0.05 , permissible_rms_velocity=0.05, id=0 ):
 
     # setup values..........................................
     
