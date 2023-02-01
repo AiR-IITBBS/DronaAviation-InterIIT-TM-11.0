@@ -6,8 +6,10 @@ import time as tm
 import numpy as np
 from math import fabs
 
-def visit_checkpoints( checkpoints, x_permissible_error = 0.07 , y_permissible_error = 0.07, z_permissible_error = 0.05 , permissible_rms_velocity=0.05, id=0 ):
+#IMP
 #checkpoints format: [ [ [x,y,z] , time_alloted ] , ... ]
+
+def visit_checkpoints( checkpoints, x_permissible_error = 0.07 , y_permissible_error = 0.07, z_permissible_error = 0.05 , permissible_rms_velocity=0.05, id=0 ):
 
     # setup values..........................................
     
@@ -102,24 +104,26 @@ def visit_checkpoints( checkpoints, x_permissible_error = 0.07 , y_permissible_e
     # plot_velo(velocity_arr,total_flight_duration)
     return
 
-testing = [[[0,0,-0.5],30]]  
+if __name__ == "__main__":
 
-hover = [[[0,0,-0.4],12]]           #checkpoint for hover test
+    testing = [[[0,0,-0.5],30]]  
 
-x = -2
-y = 1
-z = -0.4
-cp_time = 6     #checkpoint time
-hover_time = 8
+    hover = [[[0,0,-0.4],12]]       #checkpoint for hover test
 
-rectangle = [  [[0,0,z] , hover_time] ,                                                                    #checkpoints for rectangle test
- [[x/4,0,z] , cp_time], [[x/2,0,z] , cp_time], [[x*3/4,0,z] , cp_time],  [[x,0,z] , cp_time], 
- [[x,y/3,z] ,cp_time], [[x,y*2/3,z] , cp_time] ,  [[x,y,z] , cp_time] ,
- [[x*3/4,y,z] , cp_time], [[x/2,y,z] , cp_time], [[x/4,y,z] , cp_time],  [[0,y,z] , cp_time],
- [ [0,y*2/3,z],cp_time] , [[0,y/3,z],cp_time], [[0,0,z],cp_time]  ]
+    x = -2
+    y = 1
+    z = -0.4
+    cp_time = 6     #checkpoint time
+    hover_time = 8
 
-x_translate_checkpoints = [ [[0,0,z] , 13] , [[-0.5,0,z] , 10], [[-1,0,z] , 10], [[-1.5,0,z] , 10], [[-2,0,z] , 10]]
-x_y_translate = [ [[0,0,z] , 13] , [[-0.5,0,z] , 10], [[-1,0,z] , 10], [[-1,0.4,z] , 10], [[-1,0.8,z] , 10] ]
+    rectangle = [  [[0,0,z] , hover_time] ,                                                                    #checkpoints for rectangle test
+    [[x/4,0,z] , cp_time], [[x/2,0,z] , cp_time], [[x*3/4,0,z] , cp_time],  [[x,0,z] , cp_time], 
+    [[x,y/3,z] ,cp_time], [[x,y*2/3,z] , cp_time] ,  [[x,y,z] , cp_time] ,
+    [[x*3/4,y,z] , cp_time], [[x/2,y,z] , cp_time], [[x/4,y,z] , cp_time],  [[0,y,z] , cp_time],
+    [ [0,y*2/3,z],cp_time] , [[0,y/3,z],cp_time], [[0,0,z],cp_time]  ]
 
-# visit_checkpoints(x_translate_checkpoints)
-visit_checkpoints(rectangle)
+    x_translate_checkpoints = [ [[0,0,z] , 13] , [[-0.5,0,z] , 10], [[-1,0,z] , 10], [[-1.5,0,z] , 10], [[-2,0,z] , 10]]
+    x_y_translate = [ [[0,0,z] , 13] , [[-0.5,0,z] , 10], [[-1,0,z] , 10], [[-1,0.4,z] , 10], [[-1,0.8,z] , 10] ]
+
+    visit_checkpoints(hover)
+    # visit_checkpoints(rectangle)
