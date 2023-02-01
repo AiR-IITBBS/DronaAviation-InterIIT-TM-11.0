@@ -1,7 +1,4 @@
-'''
-Sample Usage:-
-python calibration.py --dir calibration_checkerboard/ --square_size 0.024
-'''
+
 
 import numpy as np
 import cv2
@@ -9,12 +6,11 @@ import time
 
 
 def calibrate(cam_src, frame_count, square_size, width, height, visualize=False):
-    """ Apply camera calibration operation for images in the given directory path. """
 
     # termination criteria
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-    video_stream = cv2.VideoCapture(cam_src)
+    video_stream = cv2.VideoCapture(cam_src) # creates cv video-stream
     video_stream.set(cv2.CAP_PROP_FRAME_WIDTH, 2560)
     video_stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1440)
     time.sleep(1)
@@ -60,6 +56,8 @@ def calibrate(cam_src, frame_count, square_size, width, height, visualize=False)
         curr_count += 1
 
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+
+    # determines the camera matrix and the distortion coeffs from the image points
 
     return [ret, mtx, dist, rvecs, tvecs]
 
@@ -175,6 +173,8 @@ if __name__ == '__main__':
 
     print(mtx)
     print(dist)
+
+    # saves the camera coeffs and distorting coeffs to file
 
     np.save("calibration_matrix", mtx)
     np.save("distortion_coefficients", dist)
