@@ -5,7 +5,7 @@ from numpy import array as arr
 
 class PIDController:
 
-    def __init__(self , target_position, k_values, range):
+    def __init__(self , target_position, k_values, range):              #initialises the values & properties for PIDController
 
         self.origin_position = [0.0, 0.0, 0.0]
         self.drone_position = [0.0,0.0,0.0]
@@ -28,7 +28,7 @@ class PIDController:
 
         self.current_state = [1500, 1500, 1500]
 
-    def calculate_state(self , current_position):
+    def calculate_state(self , current_position):                           #calculates the state values(TPR) as per drone's current_position
 
         self.drone_position = current_position
 
@@ -51,20 +51,19 @@ class PIDController:
         self.prev_value[0] = self.error[0]
         self.prev_value[1] = self.error[1]
         self.prev_value[2] = self.error[2]
-        # Need to look into anti windup for limiting integral term.
 
         self.clamp_state_values()
 
         # print(self.drone_pitch,self.drone_roll,self.drone_throttle)
         return [self.drone_throttle , self.drone_pitch , self.drone_roll]
 
-    def set_target(self,checkpoint):
-        self.target_position = checkpoint
+    def set_target(self,checkpoint):                        #sets the target to the given position(checkpoint)
+        self.target_position = checkpoint                   #Note: checkpoint is a list of the form [x,y,z]
 
-    def get_error(self):
+    def get_error(self):                                    #returns the current error
         return self.error
         
-    def clamp_state_values(self):
+    def clamp_state_values(self):                           #clamps the state values according to "range"(given as input during initiation)
         if(self.drone_roll > self.max_values[2] ):
             self.drone_roll = self.max_values[2]
             self.integral_error[1] -= (self.drone_roll - self.max_values[2])/self.Ki[2]

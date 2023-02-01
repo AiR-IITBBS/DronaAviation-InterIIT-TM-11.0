@@ -60,7 +60,7 @@ def aruco_display(corners, ids, rejected, image):
 	return image
 
 prev_frame_time = 0
-def show_fps(output):
+def show_fps(output):           #for showing frame rate in the tracking display
     global prev_frame_time
     new_frame_time = tm.time()
     fps = 1/(new_frame_time - prev_frame_time)
@@ -68,42 +68,37 @@ def show_fps(output):
     fps = str(int(fps))
     cv2.putText(output, fps, (7, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (100, 255, 0), 3, cv2.LINE_AA)
 
-def print_coordinates(tvec):
+def print_coordinates(tvec):          #prints coordinates
     if len(tvec) != 0:
         xpos = int(tvec[0]*100)
         ypos = int(tvec[1]*100)
         zpos = int(tvec[2]*100)
         print(f"x = {xpos} y = {ypos} z = {zpos}")
 
-def plot(commands,coords,z_rot_data,flight_duration,y="pitch",all=False):
+def plot(commands,coords,flight_duration,y="pitch",all=False):       #plots the tracking data(given by pos_tracker) and state values(given by PID)
     commands=np.array(commands)
     coords=np.array(coords)
     coords=coords*100 + 1500
     x = np.linspace(0 , flight_duration , len(coords))
-    # print(len(x) , len(coords[:,0]))    
 
     if(all):
-        plt.figure(100),plt.subplot(1,4,1)
+        plt.figure(100),plt.subplot(1,3,1)
         plt.scatter(x , coords[:,0] , label='x-coords (scaled)' , s=2)
         plt.scatter(x , commands[:,1] , label='pitch', s=2)
         plt.xlabel('Time')
         plt.legend()
 
-        plt.subplot(1,4,2)
+        plt.subplot(1,3,2)
         plt.scatter(x , coords[:,1] , label='y-coords (scaled)', s=2)
         plt.scatter(x , commands[:,2] , label='roll', s=2)
         plt.xlabel('Time')
         plt.legend()
 
-        plt.subplot(1,4,3)
+        plt.subplot(1,3,3)
         plt.scatter(x , coords[:,2] , label='z-coords (scaled)', s=2)
         plt.scatter(x , commands[:,0] , label='throttle', s=2)
         plt.xlabel('Time')
         plt.legend()
-
-        plt.subplot(1,4,4)
-        plt.scatter(x , z_rot_data , label='z_rotation (scaled)', s=2)
-
 
         plt.show()
         return
@@ -130,7 +125,7 @@ def plot(commands,coords,z_rot_data,flight_duration,y="pitch",all=False):
         print("Invalid y-value")
     return
 
-def plot_velo(velo_arr,flight_duration):
+def plot_velo(velo_arr,flight_duration):                    #plots the velocity of the drone against time
     velo_arr = np.array(velo_arr)*100
     x = np.linspace(0 , flight_duration , len(velo_arr))
     plt.figure(200),plt.scatter(x , velo_arr, s=2)
