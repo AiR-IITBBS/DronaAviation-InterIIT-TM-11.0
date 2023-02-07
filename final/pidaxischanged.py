@@ -44,7 +44,7 @@ class PIDController:
         self.out_roll = int(self.Kp[2] * self.error[1] + self.Kd[2]*(self.error[1]-self.prev_value[1]) + self.Ki[2]*self.integral_error[1])
         self.out_pitch = int(self.Kp[1] * self.error[0] + self.Kd[1]*(self.error[0]-self.prev_value[0]) + self.Ki[1]*self.integral_error[0])
 
-        self.drone_throttle = 1500 + self.out_throttle
+        self.drone_throttle = 1550 + self.out_throttle
         self.drone_roll = 1500 + self.out_roll 
         self.drone_pitch = 1500 + self.out_pitch
 

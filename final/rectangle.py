@@ -78,7 +78,7 @@ def visit_checkpoints( checkpoints, x_permissible_error = 0.07 , y_permissible_e
             #....................................
 
             # print(new_pos)
-            calculated_state = pid.calculate_state(new_pos)     #
+            calculated_state = pid.calculate_state(new_pos)     #calculates state values using PID
 
             #storing data for plotting
             commands_data.append(calculated_state)

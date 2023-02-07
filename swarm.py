@@ -22,7 +22,6 @@ def visitCheckpoints(checkpoints,drone,pos_tracker,pid,id):
         # while( curr_err[0]>x_permissible_error or curr_err[1]>y_permissible_error or curr_err[2]>z_permissible_error or pos_tracker.get_velocity(id)>permissible_rms_velocity):
         while(tm.time()-start<i[1]):
             new_pos = np.array(pos_tracker.read_smooth_position(id))
-            new_pos = np.array([0.1 , 0.1 , -0.5])  #delete
             # new_z_rot = pos_tracker.read_z_rotation(id)
             if(len(new_pos) == 0):
                 break
@@ -53,13 +52,12 @@ def nSwarm(checkpoints,ID,IPs):
     d = np.load(distortion_coefficients_path)
 
 
-    pos_tracker = PositionTracker(aruco_dict_type, k, d, camera_src=2, wait_time=1 ,  smoothing=[3, 3, 10])
+    pos_tracker = PositionTracker(aruco_dict_type, k, d, camera_src=0, wait_time=1 ,  smoothing=[3, 3, 10])
     pos_tracker.start()
     init_pos = np.array(pos_tracker.read_smooth_position(ID[0]))
     # start = tm.time()
-    init_pos = np.array([0.1 , 0.1 , -0.5] )  #delete
     while( len(init_pos)==0 ):
-        # print("Detecting Drone")
+        print("Detecting Drone")
         init_pos = np.array(pos_tracker.read_smooth_position(ID[0]))
     
     print("Initial Position",init_pos)
@@ -67,7 +65,6 @@ def nSwarm(checkpoints,ID,IPs):
     print("Origin Set")
     pos_tracker.set_origin(np.array(scale_coords(pos_tracker.read_smooth_position(ID[0]))))
 
-    pos_tracker.set_origin(np.array([0.1 , 0.1 , -0.5]))  #delete
     
 
     droneSet ={}
@@ -97,10 +94,13 @@ def nSwarm(checkpoints,ID,IPs):
         droneThreads[i].join()
     
     pos_tracker.stop()
+    return
 
 
 if __name__ == "__main__":
     hover = [[[0,0,-0.4],12]]
+
+    nSwarm(hover , [5,6] , ["192.168.137.124" , "192.168.137.83"])
 
 
 

@@ -103,7 +103,6 @@ class PositionTracker:
                     self.generate_smooth_position(ids[i][0]) #generates the smoothed position of the drone marker
                     self.last_track_time[ids[i][0]] = time.time()
                     
-                    
             for key in self.last_track_time:
                 if((time.time() - self.last_track_time[key] > self.wait_time) and key in self.position): # if drone on not tracked for a certain time, remove from dictionary
                     self.position.pop(key)
@@ -163,13 +162,5 @@ class PositionTracker:
         velocity = (position[0][0:3] - position[1][0:3])/(position[0][3]-position[1][3])
         rms_velo = velocity[0]**2 + velocity[1]**2 + velocity[2]**2
         return rms_velo
-
-
-
-
-
-        
-            
-            
 
     
