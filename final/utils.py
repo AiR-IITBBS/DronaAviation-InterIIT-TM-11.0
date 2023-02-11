@@ -79,10 +79,12 @@ def plot(commands,coords,flight_duration,y="pitch",all=False):       #plots the 
     commands=np.array(commands)
     coords=np.array(coords)
     coords=coords*100 + 1500
-    x = np.linspace(0 , flight_duration , len(coords))
+    x = np.linspace(0 , flight_duration , len(coords[:,0]))
 
     if(all):
         plt.figure(100),plt.subplot(1,3,1)
+        print(x.shape , coords[:,0].shape)
+        print(x)
         plt.scatter(x , coords[:,0] , label='x-coords (scaled)' , s=2)
         plt.scatter(x , commands[:,1] , label='pitch', s=2)
         plt.xlabel('Time')

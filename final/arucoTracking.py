@@ -49,6 +49,7 @@ class PositionTracker:
         self.smooth_position = {} # store smoothed coords of all drones
         self.position_store = {} # store prev positions for smoothing
         self.smoothing = smoothing
+        self.scaling_params = [1.0, 1.0, 1.0]
 
     def start(self): #initiates tracking thread
         Thread(target=self.update, args=()).start()
@@ -71,6 +72,9 @@ class PositionTracker:
         time.sleep(1) 
         self.stream.release()
         cv2.destroyAllWindows()
+
+    def set_scaling_params(self, params):
+        self.scaling_params = params;
         
     def set_origin(self, origin): #sets the given coords as the origin of the coord-system
         self.origin_position = origin
@@ -98,7 +102,8 @@ class PositionTracker:
                     # instimates the position of the marker wrt camera coords
                     cv2.aruco.drawDetectedMarkers(self.frame, corners) 
                     cv2.aruco.drawAxis(self.frame, self.matrix_coefficients, self.distortion_coefficients, rvec, tvec, 0.01)
-                    self.position[ids[i][0]] = list(arr(tvec[0][0]) - arr(self.origin_position))
+                    
+                    self.position[ids[i][0]] = list(np.multiply(arr(tvec[0][0]) - arr(self.origin_position), arr(self.scaling_params)))
                     self.rotation[ids[i][0]] = rvec[0][0][2]
                     self.generate_smooth_position(ids[i][0]) #generates the smoothed position of the drone marker
                     self.last_track_time[ids[i][0]] = time.time()

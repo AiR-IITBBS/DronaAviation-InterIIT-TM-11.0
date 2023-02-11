@@ -105,7 +105,7 @@ class Drone:
         self.set_cmd_data[5] = 2
         self.set_cmd_data[6] = 0
         self.cmd_set = True
-        time.sleep(3)
+        time.sleep(2)
         self.disarm()
 
     def set_throttle(self, val):                                    #modifies rc_raw_data for changing the throttle as per input

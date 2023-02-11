@@ -169,7 +169,7 @@ def calibrate(cam_src, frame_count, square_size, width, height, visualize=False)
 
 if __name__ == '__main__':
     # time.sleep()
-    ret, mtx, dist, rvecs, tvecs = calibrate(2, 40, 0.0178, 10, 7, True)
+    ret, mtx, dist, rvecs, tvecs = calibrate(1, 40, 0.0178, 10, 7, True)
 
     print(mtx)
     print(dist)

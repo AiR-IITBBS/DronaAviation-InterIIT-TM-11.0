@@ -49,6 +49,7 @@ def visit_checkpoints( checkpoints, x_permissible_error = 0.07 , y_permissible_e
     print("Initial Position",init_pos)
     tm.sleep(1)
     print("Origin Set")
+    pos_tracker.set_scaling_params([2.36, 2.4375, 2.56])
     pos_tracker.set_origin(np.array(pos_tracker.read_smooth_position(id)))      #sets the initial position as origin
     tm.sleep(2)
     pid = PIDController([0, 0, -0.4], k_values, range)
@@ -67,20 +68,15 @@ def visit_checkpoints( checkpoints, x_permissible_error = 0.07 , y_permissible_e
         while(tm.time()-start<i[1]):
             new_pos = np.array(pos_tracker.read_smooth_position(id))    #getting latest position
             new_z_rot = pos_tracker.read_z_rotation(id)                 #getting current yaw state
-
+            print(new_pos)
             if(len(new_pos) == 0):                                      #terminates the current loop if tracking fails for more than the wait_time(defined earlier)
                 break
-
-            #scaling obtained values
-            new_pos[0] *= 2.36                      
-            new_pos[1] *= 2.4375
-            new_pos[2] = -fabs(new_pos[2])*2.56
-            #....................................
 
             # print(new_pos)
             calculated_state = pid.calculate_state(new_pos)     #calculates state values using PID
 
             #storing data for plotting
+            
             commands_data.append(calculated_state)
             coords_data.append( new_pos )
             velocity_arr.append(pos_tracker.get_velocity(id))
@@ -106,7 +102,7 @@ def visit_checkpoints( checkpoints, x_permissible_error = 0.07 , y_permissible_e
 
 if __name__ == "__main__":
 
-    testing = [[[0,0,-0.5],30]]  
+    testing = [[[0,0,-0.5],10]]  
 
     hover = [[[0,0,-0.4],12]]       #checkpoint for hover test
 
@@ -125,5 +121,5 @@ if __name__ == "__main__":
     x_translate_checkpoints = [ [[0,0,z] , 13] , [[-0.5,0,z] , 10], [[-1,0,z] , 10], [[-1.5,0,z] , 10], [[-2,0,z] , 10]]
     x_y_translate = [ [[0,0,z] , 13] , [[-0.5,0,z] , 10], [[-1,0,z] , 10], [[-1,0.4,z] , 10], [[-1,0.8,z] , 10] ]
 
-    visit_checkpoints(hover)
+    visit_checkpoints(testing)
     # visit_checkpoints(rectangle)
