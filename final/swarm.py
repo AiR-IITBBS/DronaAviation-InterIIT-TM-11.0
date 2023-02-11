@@ -93,10 +93,12 @@ def nSwarm(checkpoints,ID,IPs):
 
 if __name__ == "__main__":
     hover = [[[0,0,-0.4],12]]
-    x_translate_checkpoints = [ [[0,0,z] , 13] , [[-0.5,0,z] , 10], [[-1,0,z] , 10], [[-1.5,0,z] , 10], [[-2,0,z] , 10]]
+
+    z=-0.3
+    x_translate_checkpoints = [ [[0,0,z] , 10] , [[-0.5,0,z] , 7], [[-1,0,z] , 7]]
 
 
-    nSwarm(hover , [5,6] , ["192.168.137.124" , "192.168.137.83"])
+    nSwarm(x_translate_checkpoints , [3,0] , ["192.168.137.124" , "192.168.137.83"])
 
 
 

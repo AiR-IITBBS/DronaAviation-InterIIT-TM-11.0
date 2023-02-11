@@ -30,6 +30,10 @@ def visit_checkpoints( checkpoints, x_permissible_error = 0.07 , y_permissible_e
     # [ 0.1,  0.1, 0.1], 
     # [ 40,  3200 , 2950]]     # PID, TPRs
 
+    # [[300 , 170, 170],
+    # [ 0.1,  0.1, 0.1], 
+    # [ 50,  3300 , 2950]]     # PID, TPRs
+
     range = [[1300, 1900], [1300, 1700], [1300, 1700]] # TPR    #maximum values for state
 
     k = np.load(calibration_matrix_path)
@@ -110,7 +114,7 @@ if __name__ == "__main__":
 
     testing = [[[0,0,-0.5],30]]  
 
-    hover = [[[0,0,-0.4],15]]       #checkpoint for hover test
+    hover = [[[0,0,-0.4],10]]       #checkpoint for hover test
 
     x = -1.5
     y = 0.75
@@ -127,5 +131,5 @@ if __name__ == "__main__":
     x_translate_checkpoints = [ [[0,0,z] , 13] , [[-0.5,0,z] , 10], [[-1,0,z] , 10], [[-1.5,0,z] , 10], [[-2,0,z] , 10]]
     x_y_translate = [ [[0,0,z] , 13] , [[-0.5,0,z] , 10], [[-1,0,z] , 10], [[-1,0.4,z] , 10], [[-1,0.8,z] , 10] ]
 
-    visit_checkpoints(rectangle , id=3)
+    visit_checkpoints(x_translate_checkpoints , id=3)
     # visit_checkpoints(rectangle)
