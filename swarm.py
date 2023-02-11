@@ -42,9 +42,9 @@ def nSwarm(checkpoints,ID,IPs):
     aruco_dict_type = ARUCO_DICT["DICT_4X4_250"]
     calibration_matrix_path = "calibration_data/calibration_matrix.npy"
     distortion_coefficients_path = "calibration_data/distortion_coefficients.npy"
-    k_values =   [[250 , 160, 160],
-                 [ 0.05,  0.1, 0.1], 
-                 [ 8500,  8500 , 8500]]# PID, TPRs
+    k_values =   [[300 , 170, 170],
+                 [ 0.1,  0.1, 0.1], 
+                 [ 50,  3300 , 2950]] 
 
     range = [[1300, 2000], [1300, 1700], [1300, 1700]] # TPR
 
@@ -52,7 +52,7 @@ def nSwarm(checkpoints,ID,IPs):
     d = np.load(distortion_coefficients_path)
 
 
-    pos_tracker = PositionTracker(aruco_dict_type, k, d, camera_src=0, wait_time=1 ,  smoothing=[3, 3, 10])
+    pos_tracker = PositionTracker(aruco_dict_type, k, d, camera_src=1, wait_time=1 ,  smoothing=[3, 3, 10])
     pos_tracker.start()
     init_pos = np.array(pos_tracker.read_smooth_position(ID[0]))
     # start = tm.time()
@@ -69,8 +69,9 @@ def nSwarm(checkpoints,ID,IPs):
 
     droneSet ={}
     for i in ID:
-         drone = Drone(IPs[i], 23, i, debug=True) #createss drone object, set debug to true to get console output on every action.
+         drone = Drone(IPs[i], 23, i, debug=True) #creates drone object, set debug to true to get console output on every action.
          drone.connect()
+         tm.sleep(2)
          pid = PIDController([0, 0, 0], k_values, range)
          droneSet[i] = (drone , pid)
     droneThreads = {}
@@ -100,7 +101,10 @@ def nSwarm(checkpoints,ID,IPs):
 if __name__ == "__main__":
     hover = [[[0,0,-0.4],12]]
 
-    nSwarm(hover , [5,6] , ["192.168.137.124" , "192.168.137.83"])
+    IDs = [ 0 , 3]
+    IPs = {IDs[0]:"192.168.137.242" , IDs[1]:"192.168.137.74"}
+
+    nSwarm(hover , IDs , IPs)
 
 
 
