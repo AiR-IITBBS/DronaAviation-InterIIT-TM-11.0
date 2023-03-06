@@ -54,16 +54,22 @@ class pid:
 
         if(self.drone_roll > self.max_values[0] ):
             self.drone_roll = self.max_values[0]
+            self.sum_error[0] = self.sum_error[0] - (self.drone_roll - self.max_values[0])/self.Ki[0] 
         if(self.drone_pitch > self.max_values[1] ):
             self.drone_pitch = self.max_values[1]
+            self.sum_error[1] = self.sum_error[1] - (self.drone_pitch - self.max_values[1])/self.Ki[1] 
         if(self.drone_throttle > self.max_values[2] ):
             self.drone_throttle = self.max_values[2]
+            self.sum_error[2] = self.sum_error[2] - (self.drone_throttle - self.max_values[2])/self.Ki[2] 
         if( self.drone_roll < self.min_values[0]):
-            self.drone_roll =  self.min_values[0]
+            self.drone_roll = self.min_values[0]
+            self.sum_error[0] = self.sum_error[2] - (self.drone_roll - self.min_values[0])/self.Ki[0] 
         if( self.drone_pitch < self.min_values[1]):
             self.drone_pitch =  self.min_values[1]
+            self.sum_error[0] = self.sum_error[2] - (self.drone_pitch - self.min_values[1])/self.Ki[1] 
         if( self.drone_throttle < self.min_values[2]):
             self.drone_throttle =  self.min_values[2]
+            self.sum_error[0] = self.sum_error[2] - (self.drone_throttle - self.min_values[2])/self.Ki[2] 
 
         self.prev_value[0] = self.error[0]
         self.prev_value[1] = self.error[1]

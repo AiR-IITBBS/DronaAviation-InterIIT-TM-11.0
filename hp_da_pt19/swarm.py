@@ -1,4 +1,3 @@
-# This file is yet to be finalized
 from arucoTracking import PositionTracker
 from utils import ARUCO_DICT
 from Communication import Drone
@@ -7,12 +6,6 @@ import time as tm
 import numpy as np
 from math import fabs
 import threading 
-
-def scale_coords(coords):
-    coords[0] *= 2.36
-    coords[1] *= 2.4375  #2.2 earlier
-    coords[2] = -fabs(coords[2])*2.56
-    return coords
 
 def visitCheckpoints(checkpoints,drone,pos_tracker,pid,id):
     for i in checkpoints:
@@ -25,7 +18,6 @@ def visitCheckpoints(checkpoints,drone,pos_tracker,pid,id):
             # new_z_rot = pos_tracker.read_z_rotation(id)
             if(len(new_pos) == 0):
                 break
-            new_pos = scale_coords(new_pos)
             # print(new_pos)
             calculated_state = pid.calculate_state(new_pos)
             drone.set_state(calculated_state[0], calculated_state[1], calculated_state[2])
@@ -42,9 +34,9 @@ def nSwarm(checkpoints,ID,IPs):
     aruco_dict_type = ARUCO_DICT["DICT_4X4_250"]
     calibration_matrix_path = "calibration_data/calibration_matrix.npy"
     distortion_coefficients_path = "calibration_data/distortion_coefficients.npy"
-    k_values =   [[300 , 170, 170],
-                 [ 0.1,  0.1, 0.1], 
-                 [ 50,  3300 , 2950]] 
+    k_values =   [[250 , 160, 160],
+                 [ 0.05,  0.1, 0.1],
+                 [ 8500,  8500 , 8500]]# PID, TPRs
 
     range = [[1300, 2000], [1300, 1700], [1300, 1700]] # TPR
 
@@ -52,8 +44,9 @@ def nSwarm(checkpoints,ID,IPs):
     d = np.load(distortion_coefficients_path)
 
 
-    pos_tracker = PositionTracker(aruco_dict_type, k, d, camera_src=1, wait_time=1 ,  smoothing=[3, 3, 10])
+    pos_tracker = PositionTracker(aruco_dict_type, k, d, camera_src=0, wait_time=1 ,  smoothing=[3, 3, 10])
     pos_tracker.start()
+    pos_tracker.set_scaling_params([2.36, 2.4375, 2.56])
     init_pos = np.array(pos_tracker.read_smooth_position(ID[0]))
     # start = tm.time()
     while( len(init_pos)==0 ):
@@ -63,15 +56,14 @@ def nSwarm(checkpoints,ID,IPs):
     print("Initial Position",init_pos)
     tm.sleep(1)
     print("Origin Set")
-    pos_tracker.set_origin(np.array(scale_coords(pos_tracker.read_smooth_position(ID[0]))))
+    pos_tracker.set_origin(np.array(pos_tracker.read_smooth_position(ID[0])))
 
     
 
     droneSet ={}
     for i in ID:
-         drone = Drone(IPs[i], 23, i, debug=True) #creates drone object, set debug to true to get console output on every action.
+         drone = Drone(IPs[i], 23, i, debug=True) #createss drone object, set debug to true to get console output on every action.
          drone.connect()
-         tm.sleep(2)
          pid = PIDController([0, 0, 0], k_values, range)
          droneSet[i] = (drone , pid)
     droneThreads = {}
@@ -100,11 +92,10 @@ def nSwarm(checkpoints,ID,IPs):
 
 if __name__ == "__main__":
     hover = [[[0,0,-0.4],12]]
+    x_translate_checkpoints = [ [[0,0,z] , 13] , [[-0.5,0,z] , 10], [[-1,0,z] , 10], [[-1.5,0,z] , 10], [[-2,0,z] , 10]]
 
-    IDs = [ 0 , 3]
-    IPs = {IDs[0]:"192.168.137.242" , IDs[1]:"192.168.137.74"}
 
-    nSwarm(hover , IDs , IPs)
+    nSwarm(hover , [5,6] , ["192.168.137.124" , "192.168.137.83"])
 
 
 
@@ -117,5 +108,4 @@ if __name__ == "__main__":
 
 
     
-
 

@@ -94,12 +94,11 @@ class Drone:
         if self.debug: print("Disarmed...")
 
     def takeoff(self):                                              #modifies set_cmd_data for takeoff
-        
+        if self.debug: print("Takeoff...")
         self.arm()
         self.set_cmd_data[5] = 1
         self.set_cmd_data[6] = 0
         self.cmd_set = True
-        if self.debug: print("Takeoff...")
 
     def land(self):                                                 #modifies set_cmd_data for landing
         if self.debug: print("Landing...")

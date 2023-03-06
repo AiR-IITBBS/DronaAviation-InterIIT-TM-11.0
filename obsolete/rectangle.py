@@ -22,17 +22,9 @@ def visit_checkpoints( checkpoints, x_permissible_error = 0.07 , y_permissible_e
     calibration_matrix_path = "calibration_data/calibration_matrix.npy"
     distortion_coefficients_path = "calibration_data/distortion_coefficients.npy"
 
-    k_values =   [[300 , 170, 170],
-                 [ 0.1,  0.1, 0.1], 
-                 [ 50,  3300 , 2950]]     # PID, TPRs
-    
-    # [[300 , 170, 170],
-    # [ 0.1,  0.1, 0.1], 
-    # [ 40,  3200 , 2950]]     # PID, TPRs
-
-    # [[300 , 170, 170],
-    # [ 0.1,  0.1, 0.1], 
-    # [ 50,  3300 , 2950]]     # PID, TPRs
+    k_values =   [[250 , 160, 160],
+                 [ 0.05,  0.1, 0.1], 
+                 [ 8500,  8500 , 8500]]     # PID, TPRs
 
     range = [[1300, 1900], [1300, 1700], [1300, 1700]] # TPR    #maximum values for state
 
@@ -43,30 +35,30 @@ def visit_checkpoints( checkpoints, x_permissible_error = 0.07 , y_permissible_e
 
     #initialize tracking and Drone communication.............
 
-    pos_tracker = PositionTracker(aruco_dict_type, k, d, camera_src=1, wait_time=1 ,  smoothing=[5, 5, 10])
+    pos_tracker = PositionTracker(aruco_dict_type, k, d, camera_src=2, wait_time=1 ,  smoothing=[3, 3, 10])
     pos_tracker.start()
-    pos_tracker.set_scaling_params([2.23, 2.75,  1.83])
 
     drone = Drone("192.168.4.1", 23, 5, debug=True) #creates drone object, set debug to true to get console output on every action.
     drone.connect() #starts looping in a separate thread
 
-    init_pos = np.array(pos_tracker.read_position(id))
+    init_pos = np.array(pos_tracker.read_smooth_position(id))
     while( len(init_pos)==0 ):
         print("Detecting Drone")
-        init_pos = np.array(pos_tracker.read_position(id))
-
-    pos_tracker.set_origin(init_pos)      #sets the initial position as origin
-    print(f"Origin Set to {init_pos}")
+        init_pos = np.array(pos_tracker.read_smooth_position(id))
     
-    # tm.sleep(2)
-
+    print("Initial Position",init_pos)
+    tm.sleep(1)
+    print("Origin Set")
+    pos_tracker.set_scaling_params([2.36, 2.4375, 2.56])
+    pos_tracker.set_origin(np.array(pos_tracker.read_smooth_position(id)))      #sets the initial position as origin
+    tm.sleep(2)
     pid = PIDController([0, 0, -0.4], k_values, range)
     pid.calculate_state(np.array(pos_tracker.read_smooth_position(id)))
     
     init_time = tm.time()
     drone.disarm()
     drone.takeoff()
-    tm.sleep(0.3)
+    tm.sleep(0.2)
     
     for i in checkpoints:
         pid.set_target(i[0])
@@ -76,17 +68,15 @@ def visit_checkpoints( checkpoints, x_permissible_error = 0.07 , y_permissible_e
         while(tm.time()-start<i[1]):
             new_pos = np.array(pos_tracker.read_smooth_position(id))    #getting latest position
             new_z_rot = pos_tracker.read_z_rotation(id)                 #getting current yaw state
-
+            print(new_pos)
             if(len(new_pos) == 0):                                      #terminates the current loop if tracking fails for more than the wait_time(defined earlier)
                 break
-
-            
-            #....................................
 
             # print(new_pos)
             calculated_state = pid.calculate_state(new_pos)     #calculates state values using PID
 
             #storing data for plotting
+            
             commands_data.append(calculated_state)
             coords_data.append( new_pos )
             velocity_arr.append(pos_tracker.get_velocity(id))
@@ -112,13 +102,13 @@ def visit_checkpoints( checkpoints, x_permissible_error = 0.07 , y_permissible_e
 
 if __name__ == "__main__":
 
-    testing = [[[0,0,-0.5],30]]  
+    testing = [[[0,0,-0.5],10]]  
 
-    hover = [[[0,0,-0.4],10]]       #checkpoint for hover test
+    hover = [[[0,0,-0.4],12]]       #checkpoint for hover test
 
-    x = -1.5
-    y = 0.75
-    z = -0.3
+    x = -2
+    y = 1
+    z = -0.4
     cp_time = 6     #checkpoint time
     hover_time = 8
 
@@ -131,5 +121,5 @@ if __name__ == "__main__":
     x_translate_checkpoints = [ [[0,0,z] , 13] , [[-0.5,0,z] , 10], [[-1,0,z] , 10], [[-1.5,0,z] , 10], [[-2,0,z] , 10]]
     x_y_translate = [ [[0,0,z] , 13] , [[-0.5,0,z] , 10], [[-1,0,z] , 10], [[-1,0.4,z] , 10], [[-1,0.8,z] , 10] ]
 
-    visit_checkpoints(x_translate_checkpoints , id=3)
+    visit_checkpoints(testing)
     # visit_checkpoints(rectangle)
